@@ -13,5 +13,17 @@ require('mix-tailwindcss');
  */
 
 mix.js('resources/js/app.js', 'public/js')
+    .vue()
+    .webpackConfig({
+        module: {
+            rules: [
+                {
+                    test: /\.tsx?$/,
+                    loader: "ts-loader",
+                    exclude: /node_modules/,
+                },
+            ],
+        },
+    })
     .sass('resources/sass/app.scss', 'public/css')
     .tailwind();
