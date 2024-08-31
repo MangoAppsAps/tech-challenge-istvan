@@ -20,7 +20,7 @@ class JournalsController extends Controller
     public function store(Request $request, Client $client)
     {
         $this->authorize('createJournal', $client);
-        
+
         $validated = $request->validate([
             'date' => ['required', 'date'],
             'description' => ['required', 'string'],
@@ -37,10 +37,10 @@ class JournalsController extends Controller
         return $journal;
     }
 
-    public function destroy(Journal $journal)
+    public function destroy(Client $client, Journal $journal)
     {
         $this->authorize('delete', $journal);
-        
+
         $journal->delete();
 
         return 'Deleted';
