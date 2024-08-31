@@ -50,7 +50,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="booking in client.bookings" :key="booking.id">
-                                    <td>{{ booking.start }} - {{ booking.end }}</td>
+                                    <td>{{ useBookingTimeFormatter(new Date(booking.start), new Date(booking.end)) }}</td>
                                     <td>{{ booking.notes }}</td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" @click="deleteBooking(booking)">Delete</button>
@@ -79,6 +79,7 @@
 
 <script>
 import axios from 'axios';
+import useBookingTimeFormatter from '../composables/useBookingTimeFormatter.ts';
 
 export default {
     name: 'ClientShow',
@@ -88,6 +89,7 @@ export default {
     data() {
         return {
             currentTab: 'bookings',
+            useBookingTimeFormatter,
         }
     },
 
