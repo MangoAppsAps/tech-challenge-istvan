@@ -6,9 +6,9 @@ use Illuminate\Contracts\Validation\Rule;
 
 /**
  * Validates the given phone number against the E.164 format.
- * 
+ *
  * Because of the challenge says "it can contain a plus sign", I make it optional.
- * 
+ *
  * @link https://www.twilio.com/docs/glossary/what-e164#regex-matching-for-e164
  */
 class PhoneNumber implements Rule
@@ -22,6 +22,15 @@ class PhoneNumber implements Rule
      */
     public function passes($attribute, $value)
     {
+        if (is_null($value)) {
+            // Empty values are allowed.
+            return true;
+        }
+
+        if (!is_string($value)) {
+            return false;
+        }
+
         // An optional plus sign followed by a sequence of digits and spaces.
         if (preg_match('/^\+?[\d ]+$/', $value) === 0) {
             return false;

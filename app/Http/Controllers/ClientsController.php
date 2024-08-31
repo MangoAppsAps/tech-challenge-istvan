@@ -53,6 +53,7 @@ class ClientsController extends Controller
         $client->address = $validated['address'];
         $client->city = $validated['city'];
         $client->postcode = $validated['postcode'];
+        $client->user_id = $request->user()->id;
         $client->save();
 
         return $client;
@@ -61,7 +62,7 @@ class ClientsController extends Controller
     public function destroy(Client $client)
     {
         $this->authorize('delete', $client);
-        
+
         $client->delete();
 
         return 'Deleted';

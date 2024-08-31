@@ -64,7 +64,7 @@
                         </table>
                     </template>
 
-                    <template v-else-if="currentBookingFilter.noRecordMessage">
+                    <template v-else-if="currentBookingFilter && currentBookingFilter.noRecordMessage">
                         <p class="text-center">
                             {{ currentBookingFilter.noRecordMessage }}
                         </p>
@@ -126,7 +126,7 @@ export default {
             currentBookingFilter: undefined,
         }
     },
-    
+
     computed: {
         filteredBookings: function() {
             return this.client.bookings.filter(this.currentBookingFilter?.callback ?? (() => true));
