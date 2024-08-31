@@ -28,7 +28,7 @@ class ClientsController extends Controller
     {
         $this->authorize('view', $client);
 
-        $client->load('bookings');
+        $client->load('bookings', 'journals');
 
         return view('clients.show', ['client' => $client]);
     }

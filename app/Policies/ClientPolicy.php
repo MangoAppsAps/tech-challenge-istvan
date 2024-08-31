@@ -33,4 +33,9 @@ class ClientPolicy
     {
         return $user->id === $client->user_id;
     }
+
+    public function createJournal(User $user, Client $client)
+    {
+        return $user->id === $client->user_id;
+    }
 }

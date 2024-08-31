@@ -24,6 +24,9 @@ mix.js('resources/js/app.js', 'public/js')
                 },
             ],
         },
+        resolve: {
+            extensions: ["*", ".js", ".jsx", ".vue", ".ts", ".tsx"],
+        },
     })
     .sass('resources/sass/app.scss', 'public/css')
     .tailwind();
