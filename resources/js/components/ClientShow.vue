@@ -39,7 +39,11 @@
                 <div class="bg-white rounded p-4" v-if="currentTab == 'bookings'">
                     <h3 class="mb-3">List of client bookings</h3>
 
-                    <template v-if="client.bookings && client.bookings.length > 0">
+                    <booking-filter
+                        @change="handleChangeFilter"
+                    />
+
+                    <template v-if="filteredBookings.length > 0">
                         <table>
                             <thead>
                                 <tr>
@@ -49,7 +53,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="booking in client.bookings" :key="booking.id">
+                                <tr v-for="booking in filteredBookings" :key="booking.id">
                                     <td>{{ useBookingTimeFormatter(new Date(booking.start), new Date(booking.end)) }}</td>
                                     <td>{{ booking.notes }}</td>
                                     <td>
@@ -58,6 +62,12 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </template>
+
+                    <template v-else-if="currentBookingFilter.noRecordMessage">
+                        <p class="text-center">
+                            {{ currentBookingFilter.noRecordMessage }}
+                        </p>
                     </template>
 
                     <template v-else>
@@ -90,12 +100,23 @@ export default {
         return {
             currentTab: 'bookings',
             useBookingTimeFormatter,
+            currentBookingFilter: undefined,
         }
+    },
+    
+    computed: {
+        filteredBookings: function() {
+            return this.client.bookings.filter(this.currentBookingFilter?.callback ?? (() => true));
+        },
     },
 
     methods: {
         switchTab(newTab) {
             this.currentTab = newTab;
+        },
+
+        handleChangeFilter(newFilter) {
+            this.currentBookingFilter = newFilter;
         },
 
         deleteBooking(booking) {
