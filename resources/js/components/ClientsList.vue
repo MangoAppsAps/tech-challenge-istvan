@@ -16,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="client in clients" :key="client.id">
+                <tr v-for="client in mutableClients" :key="client.id">
                     <td>{{ client.name }}</td>
                     <td>{{ client.email }}</td>
                     <td>{{ client.phone }}</td>
@@ -39,9 +39,23 @@ export default {
 
     props: ['clients'],
 
+    data: function() {
+        return {
+            mutableClients: this.clients,
+        };
+    },
+
     methods: {
-        deleteClient(client) {
-            axios.delete(`/clients/${client.id}`);
+        async deleteClient(client) {
+            // In a real application, a Bootstrap modal or similar would be better.
+            if (!confirm('Are you sure?')) {
+                return;
+            }
+
+            await axios.delete(`/clients/${client.id}`);
+
+            // Remove the deleted client from the array.
+            this.mutableClients = this.mutableClients.filter((c) => c.id !== client.id);
         }
     }
 }

@@ -10,7 +10,7 @@ class Client extends Model
         'name',
         'email',
         'phone',
-        'adress',
+        'address',
         'city',
         'postcode',
     ];
@@ -21,7 +21,19 @@ class Client extends Model
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class);
+        // The challenge asked me to order the bookings in "chronological order (newest first)",
+        // that's why I used the `latest()` method.
+        // Maybe it was meant to be ordered by `start` column, that would be `orderBy('start')`.
+        return $this->hasMany(Booking::class)->latest();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function journals() {
+        return $this->hasMany(Journal::class);
     }
 
     public function getBookingsCountAttribute()

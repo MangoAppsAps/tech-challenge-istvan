@@ -39,8 +39,12 @@
                 <div class="bg-white rounded p-4" v-if="currentTab == 'bookings'">
                     <h3 class="mb-3">List of client bookings</h3>
 
-                    <template v-if="client.bookings && client.bookings.length > 0">
-                        <table>
+                    <booking-filter
+                        @change="handleChangeFilter"
+                    />
+
+                    <template v-if="filteredBookings.length > 0">
+                        <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>Time</th>
@@ -49,8 +53,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="booking in client.bookings" :key="booking.id">
-                                    <td>{{ booking.start }} - {{ booking.end }}</td>
+                                <tr v-for="booking in filteredBookings" :key="booking.id">
+                                    <td>{{ useBookingTimeFormatter(new Date(booking.start), new Date(booking.end)) }}</td>
                                     <td>{{ booking.notes }}</td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" @click="deleteBooking(booking)">Delete</button>
@@ -58,6 +62,12 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </template>
+
+                    <template v-else-if="currentBookingFilter && currentBookingFilter.noRecordMessage">
+                        <p class="text-center">
+                            {{ currentBookingFilter.noRecordMessage }}
+                        </p>
                     </template>
 
                     <template v-else>
@@ -68,9 +78,30 @@
 
                 <!-- Journals -->
                 <div class="bg-white rounded p-4" v-if="currentTab == 'journals'">
-                    <h3 class="mb-3">List of client journals</h3>
+                    <h3 class="mb-3">
+                        List of client journals
+                        <a :href="`/clients/${client.id}/journals/create`" class="float-right btn btn-primary">+ New Journal</a>
+                    </h3>
 
-                    <p>(BONUS) TODO: implement this feature</p>
+                    <table v-if="client.journals.length > 0" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="journal in client.journals" :key="journal.id">
+                                <td>{{ useDateFormatter(new Date(journal.date)) }}</td>
+                                <td class="whitespace-pre">{{ journal.description }}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" @click="deleteJournal(journal)">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else class="text-center">The client has no journals.</p>
                 </div>
             </div>
         </div>
@@ -79,6 +110,8 @@
 
 <script>
 import axios from 'axios';
+import useBookingTimeFormatter from '../composables/useBookingTimeFormatter.ts';
+import useDateFormatter from '../composables/useDateFormatter.ts';
 
 export default {
     name: 'ClientShow',
@@ -88,7 +121,16 @@ export default {
     data() {
         return {
             currentTab: 'bookings',
+            useBookingTimeFormatter,
+            useDateFormatter,
+            currentBookingFilter: undefined,
         }
+    },
+
+    computed: {
+        filteredBookings: function() {
+            return this.client.bookings.filter(this.currentBookingFilter?.callback ?? (() => true));
+        },
     },
 
     methods: {
@@ -96,9 +138,17 @@ export default {
             this.currentTab = newTab;
         },
 
+        handleChangeFilter(newFilter) {
+            this.currentBookingFilter = newFilter;
+        },
+
         deleteBooking(booking) {
             axios.delete(`/bookings/${booking.id}`);
-        }
+        },
+
+        deleteJournal(journal) {
+            axios.delete(`/clients/${this.client.id}/journals/${journal.id}`);
+        },
     }
 }
 </script>

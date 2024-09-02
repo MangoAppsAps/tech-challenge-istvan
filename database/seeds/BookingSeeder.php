@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Booking;
 use App\Client;
 use Illuminate\Database\Seeder;

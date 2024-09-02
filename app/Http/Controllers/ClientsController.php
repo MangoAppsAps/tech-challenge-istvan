@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Client;
+use App\Rules;
 use Illuminate\Http\Request;
 
 class ClientsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::all();
+        $clients = $request->user()->clients;
 
         foreach ($clients as $client) {
             $client->append('bookings_count');
@@ -23,30 +24,46 @@ class ClientsController extends Controller
         return view('clients.create');
     }
 
-    public function show($client)
+    public function show(Client $client)
     {
-        $client = Client::where('id', $client)->first();
+        $this->authorize('view', $client);
+
+        $client->load('bookings', 'journals');
 
         return view('clients.show', ['client' => $client]);
     }
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'name' => ['required', 'max:190'],
+            // We use the `filter` variant of the email rule, because the default implementation
+            // does not check for dot in the domain part.
+            'email' => ['required_without:phone', 'nullable', 'email:filter'],
+            'phone' => ['required_without:email', new Rules\PhoneNumber()],
+            'address' => 'nullable',
+            'city' => 'nullable',
+            'postcode' => 'nullable',
+        ]);
+
         $client = new Client;
-        $client->name = $request->get('name');
-        $client->email = $request->get('email');
-        $client->phone = $request->get('phone');
-        $client->adress = $request->get('adress');
-        $client->city = $request->get('city');
-        $client->postcode = $request->get('postcode');
+        $client->name = $validated['name'];
+        $client->email = $validated['email'];
+        $client->phone = $validated['phone'];
+        $client->address = $validated['address'];
+        $client->city = $validated['city'];
+        $client->postcode = $validated['postcode'];
+        $client->user_id = $request->user()->id;
         $client->save();
 
         return $client;
     }
 
-    public function destroy($client)
+    public function destroy(Client $client)
     {
-        Client::where('id', $client)->delete();
+        $this->authorize('delete', $client);
+
+        $client->delete();
 
         return 'Deleted';
     }
